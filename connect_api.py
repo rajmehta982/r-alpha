@@ -3,7 +3,7 @@ from SmartApi import SmartConnect #or from SmartApi.smartConnect import SmartCon
 import pyotp
 from logzero import logger
 
-def create_api_session(token_id, username, pwd):
+def create_api_session(token_id, username, pwd, smartApi):
     try:
         token = token_id
         totp = pyotp.TOTP(token).now()
