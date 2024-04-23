@@ -22,26 +22,26 @@ def get_ltp(instrument_list,ticker,exchange="NSE"):
     response = obj.ltpData(exchange, params["tradingsymbol"], params["symboltoken"])
     return response["data"]["ltp"]
 
+
+
 ####### Websocket V2 sample code #######
 
-AUTH_TOKEN = "Y3URP5C2ZUQSYTSEFELMM2CFJGM"
-API_KEY = api_key
-CLIENT_CODE = username
-FEED_TOKEN = smartApi.getfeedToken()
-correlation_id = "abc123"
-action = 1
-mode = 1
-token_list = [
-    {
-        "exchangeType": 1,
-        "tokens": ["26009"]
-    }
-]
-#retry_strategy=0 for simple retry mechanism
-sws = SmartWebSocketV2(AUTH_TOKEN, API_KEY, CLIENT_CODE, FEED_TOKEN,max_retry_attempt=2, retry_strategy=0, retry_delay=10, retry_duration=30)
+def get_data_stream(AUTH_TOKEN, API_KEY, CLIENT_CODE, FEED_TOKEN):
+    correlation_id = "abc123"
+    action = 1
+    mode = 1
+    token_list = [
+        {
+            "exchangeType": 1,
+            "tokens": ["26009"]
+        }
+    ]
+    #retry_strategy=0 for simple retry mechanism
+    sws = SmartWebSocketV2(AUTH_TOKEN, API_KEY, CLIENT_CODE, FEED_TOKEN,max_retry_attempt=2, retry_strategy=0, retry_delay=10, retry_duration=30)
 
-#retry_strategy=1 for exponential retry mechanism
-# sws = SmartWebSocketV2(AUTH_TOKEN, API_KEY, CLIENT_CODE, FEED_TOKEN,max_retry_attempt=3, retry_strategy=1, retry_delay=10,retry_multiplier=2, retry_duration=30)
+    return sws
+    #retry_strategy=1 for exponential retry mechanism
+    # sws = SmartWebSocketV2(AUTH_TOKEN, API_KEY, CLIENT_CODE, FEED_TOKEN,max_retry_attempt=3, retry_strategy=1, retry_delay=10,retry_multiplier=2, retry_duration=30)
 
 def on_data(wsapp, message):
     logger.info("Ticks: {}".format(message))
@@ -70,12 +70,11 @@ def on_close(wsapp):
 def close_connection():
     sws.close_connection()
 
-# Assign the callbacks.
-sws.on_open = on_open
-sws.on_data = on_data
-sws.on_error = on_error
-sws.on_close = on_close
-sws.on_control_message = on_control_message
+def assign_callbacks(sws):
+    # Assign the callbacks.
+    sws.on_open = on_open
+    sws.on_data = on_data
+    sws.on_error = on_error
+    sws.on_close = on_close
+    sws.on_control_message = on_control_message
 
-sws.connect()
-####### Websocket V2 sample code ENDS Here #######

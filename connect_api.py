@@ -3,13 +3,7 @@ from SmartApi import SmartConnect #or from SmartApi.smartConnect import SmartCon
 import pyotp
 from logzero import logger
 
-api_key = '2VTNvx7z'
-username = 'R258447'
-pwd = '1499'
-token_id = "3URP5C2ZUQSYTSEFELMM2CFJGM"
-
-def connect_api(api_key, token_id, username, pwd):
-    smartApi = SmartConnect(api_key)
+def create_api_session(token_id, username, pwd):
     try:
         token = token_id
         totp = pyotp.TOTP(token).now()
@@ -23,4 +17,9 @@ def connect_api(api_key, token_id, username, pwd):
     if data['status'] == False:
         logger.error(data)
 
+    return data
+
+def connect_api(api_key):
+    smartApi = SmartConnect(api_key)
+    return smartApi
 
