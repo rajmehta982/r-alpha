@@ -62,42 +62,6 @@ def exit_short(ratio_list):
     else:
         return False
     
-def market_pressure(tick, bid_ask_ratio, long_pos, long_trades, short_pos, short_trades, pos_size):
-    token = tick['token']
-    tot_bid_vol = 0
-    tot_ask_vol = 0
-    buy_data = tick['best_5_buy_data']
-    sell_data = tick['best_5_sell_data']
-    for bd in buy_data:
-        tot_bid_vol+= int(bd['quantity'])
-    for sd in sell_data:
-        tot_ask_vol+= int(sd['quantity'])
 
-    bid_ask_ratio[symbol_lookup(token)].append(tot_bid_vol/tot_ask_vol)
-    if len(bid_ask_ratio[symbol_lookup(token)]) > 30:
-        bid_ask_ratio[symbol_lookup(token)].pop(0)
-    
-    if symbol_lookup(token) not in long_pos:
-        if trend_detection(bid_ask_ratio[symbol_lookup(token)]) == "Buy":
-            print("{}: buy {} at price {} : total bid volume = {}, total ask volume = {}".format(dt.datetime.now(),symbol_lookup(token),expected_buy_price(tick,pos_size),tot_bid_vol,tot_ask_vol))
-            long_pos.append(symbol_lookup(token))
-            long_trades[symbol_lookup(token)].append([expected_buy_price(tick,pos_size)])
-    else:
-        if exit_long(bid_ask_ratio[symbol_lookup(token)]):
-            print("{}: close long {} at price {} : total bid volume = {}, total ask volume = {}".format(dt.datetime.now(),symbol_lookup(token),expected_sell_price(tick,pos_size),tot_bid_vol,tot_ask_vol))
-            long_pos.remove(symbol_lookup(token))
-            long_trades[symbol_lookup(token)][-1].append(expected_sell_price(tick,pos_size))
-    if symbol_lookup(token) not in short_pos:
-        if trend_detection(bid_ask_ratio[symbol_lookup(token)]) == "Sell":    
-            print("{}: sell {} at price {}: total bid volume = {}, total ask volume = {}".format(dt.datetime.now(),symbol_lookup(token),expected_sell_price(tick,pos_size),tot_bid_vol,tot_ask_vol))
-            short_pos.append(symbol_lookup(token))
-            short_trades[symbol_lookup(token)].append([expected_sell_price(tick,pos_size)])
-    else:
-        if exit_short(bid_ask_ratio[symbol_lookup(token)]):
-            print("{}: close short {} at price {} : total bid volume = {}, total ask volume = {}".format(dt.datetime.now(),symbol_lookup(token),expected_buy_price(tick,pos_size),tot_bid_vol,tot_ask_vol))
-            short_pos.remove(symbol_lookup(token))
-            short_trades[symbol_lookup(token)][-1].append(expected_buy_price(tick,pos_size))
-
-    print(symbol_lookup(token), "last 5 bid ask ratios :", bid_ask_ratio[symbol_lookup(token)][-5:])
 
 

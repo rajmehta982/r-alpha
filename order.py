@@ -1,11 +1,9 @@
-from smartapi import SmartConnect
 import os
 import json
 from pyotp import TOTP
+from data import token_lookup
 
-feed_token = obj.getfeedToken()
-
-def place_limit_order(instrument_list,ticker,buy_sell,price,quantity,exchange="NSE"):
+def place_limit_order(instrument_list,ticker,buy_sell,price,quantity,obj, exchange="NSE"):
     params = {
                 "variety":"NORMAL",
                 "tradingsymbol":"{}-EQ".format(ticker),
@@ -21,7 +19,7 @@ def place_limit_order(instrument_list,ticker,buy_sell,price,quantity,exchange="N
     response = obj.placeOrder(params)
     return response
 
-def place_market_order(instrument_list,ticker,buy_sell,price,quantity,sl=0,sqof=0,exchange="NSE"):
+def place_market_order(instrument_list,ticker,buy_sell,price,quantity,obj, sl=0,sqof=0,exchange="NSE"):
     params = {
                 "variety":"NORMAL",
                 "tradingsymbol":"{}-EQ".format(ticker),
@@ -37,7 +35,7 @@ def place_market_order(instrument_list,ticker,buy_sell,price,quantity,sl=0,sqof=
     response = obj.placeOrder(params)
     return response
 
-def candel_order(order_id):
+def candel_order(order_id, obj):
         params = {
                 "variety":"NORMAL",
                 "orderid":order_id
@@ -45,7 +43,7 @@ def candel_order(order_id):
         response = obj.cancelOrder(params["orderid"], params["variety"])
         return response
     
-def modify_order_type(instrument_list,ticker,order_id,order_type,quantity):
+def modify_order_type(instrument_list,ticker,order_id,order_type,quantity, obj):
     params = {
                 "variety":"NORMAL",
                 "orderid":order_id,
@@ -61,7 +59,7 @@ def modify_order_type(instrument_list,ticker,order_id,order_type,quantity):
     return response
 
 
-def place_sl_limit_order(instrument_list,ticker,buy_sell,price,quantity,exchange="NSE"):
+def place_sl_limit_order(instrument_list,ticker,buy_sell,price,quantity,obj, exchange="NSE"):
     params = {
                 "variety":"STOPLOSS",
                 "tradingsymbol":"{}-EQ".format(ticker),
@@ -78,7 +76,7 @@ def place_sl_limit_order(instrument_list,ticker,buy_sell,price,quantity,exchange
     response = obj.placeOrder(params)
     return response
 
-def place_sl_market_order(instrument_list,ticker,buy_sell,price,quantity,sl=0,sqof=0,exchange="NSE"):
+def place_sl_market_order(instrument_list,ticker,buy_sell,price,quantity,obj, sl=0,sqof=0,exchange="NSE"):
     params = {
                 "variety":"STOPLOSS",
                 "tradingsymbol":"{}-EQ".format(ticker),
