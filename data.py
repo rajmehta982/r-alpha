@@ -2,6 +2,8 @@ import urllib
 from SmartApi.smartWebSocketV2 import SmartWebSocketV2
 from logzero import logger
 import json
+import datetime as dt
+import pandas as pd
 
 def get_instrument_list():
     instrument_url = "https://margincalculator.angelbroking.com/OpenAPI_File/files/OpenAPIScripMaster.json"
@@ -19,7 +21,7 @@ def symbol_lookup(token, instrument_list, exchange="NSE"):
         if instrument["token"] == token and instrument["exch_seg"] == exchange:
             return instrument["symbol"][:-3]
 
-def get_ltp(instrument_list,ticker,exchange="NSE"):
+def get_ltp(obj,instrument_list,ticker,exchange="NSE"):
     params = {
                 "tradingsymbol":"{}-EQ".format(ticker),
                 "symboltoken": token_lookup(ticker, instrument_list)
@@ -37,6 +39,38 @@ def stream_list(list_stocks,exchange="nse_cm"):
         else:
             return_string+= exchange+'|'+token_lookup(ticker,instrument_list)
     return return_string
+
+def hist_data(obj, ticker,st_date,end_date,interval,instrument_list,exchange="NSE"):
+    params = {
+             "exchange": exchange,
+             "symboltoken": token_lookup(ticker,instrument_list),
+             "interval": interval,
+             "fromdate": st_date,
+             "todate": end_date
+             }
+    hist_data = obj.getCandleData(params)
+    df_data = pd.DataFrame(hist_data["data"],
+                           columns = ["date","open","high","low","close","volume"])
+    df_data.set_index("date",inplace=True)
+    
+    return df_data
+
+def hist_data_from_now(obj, ticker,duration,interval,instrument_list,exchange="NSE"):
+    params = {
+             "exchange": exchange,
+             "symboltoken": token_lookup(ticker,instrument_list),
+             "interval": interval,
+             "fromdate": (dt.date.today() - dt.timedelta(duration)).strftime('%Y-%m-%d %H:%M'),
+             "todate": dt.date.today().strftime('%Y-%m-%d %H:%M')  
+             }
+    hist_data = obj.getCandleData(params)
+    df_data = pd.DataFrame(hist_data["data"],
+                           columns = ["date","open","high","low","close","volume"])
+    df_data.set_index("date",inplace=True)
+    df_data.index = pd.to_datetime(df_data.index)
+    df_data.index = df_data.index.tz_localize(None)
+    
+    return df_data
 
 
 
