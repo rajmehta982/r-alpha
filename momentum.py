@@ -27,44 +27,70 @@ def get_top_nse_stocks_by_volume(instrument_list, last_n_days=4):
     
     return top_10_stocks
 
+ticker_ltp = {}
+position = 0
+momentum_short_window = 3
+momentum_long_window = 9
+
+trades = {}
 
 
-def momentum_strategy(top_10_stocks):
-
+def momentum_strategy(tick):
+    ### add ltp and return to dictionary
     token = tick['token']
-    ltp = tick['last_traded_price']
-    
-    # Backtest the strategy
-    initial_capital = original_data['close'].iloc[0]    # Initial capital in INR
-    position = 0  # 0 for no position, 1 for long position, -1 for short position
-    portfolio_value = [initial_capital]  # List to store portfolio value over time
-    shares_bought = 0
-    profit_list = []
+    ltp = tick['last_traded_price']/100
 
-    use_sell_list = []
+    momentum_signal = 0
 
-    for date, data in grouped_data:
+    if token in ticker_ltp:
+        ticker_ltp[token]['ltp'].append(ltp)
+        ticker_ltp[token]['momentum_short'] = ticker_ltp[token]['ltp'].rolling(window=momentum_short_window).mean()
+        ticker_ltp[token]['momentum_long'] = ticker_ltp[token]['ltp'].rolling(window=momentum_long_window).mean()
+    else:
+        ticker_ltp[token] = {
+            'ltp': [ltp],
+            'momentum_short':None,
+            'momentum_long':None
+        }
 
-        for i in range(0, len(data)):
+    # Check momentum signal
+    if ticker_ltp[token]['momentum_short'][-1] > ticker_ltp[token]['momentum_long'][-1]:
+        momentum_signal = 1
+    elif ticker_ltp[token]['momentum_short'][-1] < ticker_ltp[token]['momentum_long'][-1]:
+        momentum_signal = -1
 
-            if data['Signal'].iloc[i] == 1 and position == 0:  # Buy signal and no position
-                position = 1
-                shares_bought = initial_capital / data['close'].iloc[i]
-                initial_capital = 0
+    #create trade
+    if momentum_signal == 1 and position == 0:
+        quantity = capital // ltp
+        price = ltp
+        position = 1
 
-                portfolio_value.append(initial_capital + shares_bought * data['close'].iloc[i])
-            
-            elif data['Signal'].iloc[i] == -1 and position == 1:  # Sell signal and long position
-                position = 0
-                initial_capital = shares_bought * data['close'].iloc[i]
-                shares_bought = 0
+        if token in trades:
+            trades[token]['buy_prices'].append(price)
+            trades[token]['quantity'].append(quantity)
+            trades[token]['sell_price'].append(None)
         
-                portfolio_value.append(initial_capital + shares_bought * data['close'].iloc[i])
+        else:
+            trades[token] = {
+            'buy_prices': price,
+            'quantity':quantity,
+            'sell_price':None
+            }
 
-            else:
-                portfolio_value.append(portfolio_value[-1])
-            
-            use_sell_list.append(use_sell)
+    elif momentum_signal == -1 and position == 1:
+        quantity = trades[token]['quantity'][-1]
+        price = ltp
+        position = 0
+        if token in trades:
+            trades[token]['sell_price'].append(price)
+        
+        else:
+            trades[token] = {
+            'sell_price':price
+            }
+
+
+
             
 
 
