@@ -3,11 +3,11 @@ import json
 from pyotp import TOTP
 from data import token_lookup
 
-def place_limit_order(instrument_list,ticker,buy_sell,price,quantity,obj, exchange="NSE"):
+def place_limit_order(instrument_list,symbol,token,buy_sell,price,quantity,obj, exchange="NSE"):
     params = {
                 "variety":"NORMAL",
-                "tradingsymbol":"{}-EQ".format(ticker),
-                "symboltoken":token_lookup(ticker, instrument_list),
+                "tradingsymbol":symbol,
+                "symboltoken":token,
                 "transactiontype":buy_sell,
                 "exchange":exchange,
                 "ordertype":"LIMIT",

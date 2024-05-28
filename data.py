@@ -12,9 +12,14 @@ def get_instrument_list():
     return instrument_list
 
 def token_lookup(ticker, instrument_list, exchange="NSE"):
-    for instrument in instrument_list:
-        if instrument["name"] == ticker and instrument["exch_seg"] == exchange and instrument["symbol"].split('-')[-1] == "EQ":
-            return instrument["token"]
+    if exchange=="NFO":
+        for instrument in instrument_list:
+            if instrument["symbol"] == ticker:
+                return instrument["token"]
+    else:
+        for instrument in instrument_list:
+            if instrument["name"] == ticker and instrument["exch_seg"] == exchange and instrument["symbol"].split('-')[-1] == "EQ":
+                return instrument["token"]
         
 def symbol_lookup(token, instrument_list, exchange="NSE"):
     for instrument in instrument_list:
